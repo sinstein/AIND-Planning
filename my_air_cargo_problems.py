@@ -60,6 +60,18 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             """
             loads = []
+            for c in self.cargos:
+                for p in self.planes:
+                    for x in self.airports:
+                        precond_pos = [expr("At({c}, {x}) ^ At({p}, {x}) ^ Cargo({c}) ^ Plane({p}) ^ Airport({x})".format(c=c, x=x, p=p))]
+                        precond_neg = []
+                        effect_add = [expr("In({c}, {p})".format(c=c, p=p))]
+                        effect_rem = [expr("At({c}, {x})".format(c=c, x=x))]
+                        load_action = Action(expr("Load({c}, {p}, {x})".format(c=c, p=p, x=x)),
+                                       [precond_pos, precond_neg],
+                                       [effect_add, effect_rem])
+                        loads.append(load_action)
+
             # TODO create all load ground actions from the domain Load action
             return loads
 
@@ -69,6 +81,17 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             """
             unloads = []
+            for c in self.cargos:
+                for p in self.planes:
+                    for x in self.airports:
+                        precond_pos = [expr("In({c}, {p}) ^ At({p}, {x}) ^ Cargo({c}) ^ Plane({p}) ^ Airport({x})".format(c=c, x=x, p=p))]
+                        precond_neg = []
+                        effect_add = [expr("At({c}, {x})".format(c=c, x=x))]
+                        effect_rem = [expr("In({c}, {p})".format(c=c, p=p))]
+                        load_action = Action(expr("Unload({c}, {p}, {x})".format(c=c, p=p, x=x)),
+                                       [precond_pos, precond_neg],
+                                       [effect_add, effect_rem])
+                        unloads.append(load_action)
             # TODO create all Unload ground actions from the domain Unload action
             return unloads
 
@@ -184,7 +207,12 @@ def air_cargo_p1() -> AirCargoProblem:
     goal = [expr('At(C1, JFK)'),
             expr('At(C2, SFO)'),
             ]
-    return AirCargoProblem(cargos, planes, airports, init, goal)
+    print(neg)
+    acp =  AirCargoProblem(cargos, planes, airports, init, goal)
+    for action in acp.get_actions():
+        print(action)
+        print(action.check_precond())
+
 
 
 def air_cargo_p2() -> AirCargoProblem:
@@ -195,3 +223,5 @@ def air_cargo_p2() -> AirCargoProblem:
 def air_cargo_p3() -> AirCargoProblem:
     # TODO implement Problem 3 definition
     pass
+
+air_cargo_p1()
