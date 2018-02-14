@@ -63,7 +63,8 @@ class AirCargoProblem(Problem):
             for c in self.cargos:
                 for p in self.planes:
                     for x in self.airports:
-                        precond_pos = [expr("At({c}, {x}) ^ At({p}, {x}) ^ Cargo({c}) ^ Plane({p}) ^ Airport({x})".format(c=c, x=x, p=p))]
+                        precond_pos = [expr("At({c}, {x})".format(c=c, x=x, p=p)),
+                                       expr("At({p}, {x})".format(c=c, x=x, p=p))]
                         precond_neg = []
                         effect_add = [expr("In({c}, {p})".format(c=c, p=p))]
                         effect_rem = [expr("At({c}, {x})".format(c=c, x=x))]
@@ -84,7 +85,8 @@ class AirCargoProblem(Problem):
             for c in self.cargos:
                 for p in self.planes:
                     for x in self.airports:
-                        precond_pos = [expr("In({c}, {p}) ^ At({p}, {x}) ^ Cargo({c}) ^ Plane({p}) ^ Airport({x})".format(c=c, x=x, p=p))]
+                        precond_pos = [expr("In({c}, {p})".format(c=c, x=x, p=p)),
+                                       expr("At({p}, {x})".format(c=c, x=x, p=p))]
                         precond_neg = []
                         effect_add = [expr("At({c}, {x})".format(c=c, x=x))]
                         effect_rem = [expr("In({c}, {p})".format(c=c, p=p))]
@@ -126,8 +128,20 @@ class AirCargoProblem(Problem):
             e.g. 'FTTTFF'
         :return: list of Action objects
         """
-        # TODO implement
         possible_actions = []
+        for action in self.get_actions():
+            # print(action)
+            # print(state)
+            # print(encode_state(FluentState(action.precond_pos, action.precond_neg), self.state_map))
+            # print(decode_state(state, self.state_map))
+            # print(action.precond_pos)
+            # print(action.precond_neg)
+            # print(action.precond_pos in state)
+            current_state = decode_state(state, self.state_map)
+            if(set(action.precond_pos).issubset(current_state.pos) and set(action.precond_neg).issubset(current_state.neg)):
+                possible_actions.append(action)
+
+        # print(possible_actions)
         return possible_actions
 
     def result(self, state: str, action: Action):
@@ -141,6 +155,10 @@ class AirCargoProblem(Problem):
         """
         # TODO implement
         new_state = FluentState([], [])
+        current_state = decode_state(state, self.state_map)
+        pos = current_state.pos
+        pos.append(action.effect_add)
+        
         return encode_state(new_state, self.state_map)
 
     def goal_test(self, state: str) -> bool:
@@ -208,10 +226,9 @@ def air_cargo_p1() -> AirCargoProblem:
             expr('At(C2, SFO)'),
             ]
     print(neg)
-    acp =  AirCargoProblem(cargos, planes, airports, init, goal)
-    for action in acp.get_actions():
-        print(action)
-        print(action.check_precond())
+    acp = AirCargoProblem(cargos, planes, airports, init, goal)
+    print(acp.initial_state_TF)
+    print(acp.actions(acp.initial_state_TF))
 
 
 
