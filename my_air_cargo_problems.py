@@ -201,8 +201,11 @@ class AirCargoProblem(Problem):
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         count = 0
-        for gexpr in self.goal:
-            print(gexpr)
+        fs = decode_state(node.state, self.state_map)
+        for goal_state in self.goal:
+            if goal_state not in fs.pos:
+                count += 1
+
         return count
 
 
