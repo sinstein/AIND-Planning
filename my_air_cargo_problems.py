@@ -325,6 +325,7 @@ def air_cargo_p3() -> AirCargoProblem:
 
     return AirCargoProblem(cargos, planes, airports, init, goal)
 
+
 def solve_planning_problem():
     acp = air_cargo_p3()
     current_state = acp.initial_state_TF
@@ -347,4 +348,10 @@ def solve_planning_problem():
     for action in taken_actions:
         print(action)
 
+
+def misc():
+    acp = air_cargo_p3()
+    pg = PlanningGraph(acp, acp.initial_state_TF)
+
+misc()
 # solve_planning_problem()
